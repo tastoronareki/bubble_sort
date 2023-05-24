@@ -32,14 +32,15 @@ module testbench();
 
 	initial begin
 
-		for (i = 0; i <= 7; i = i + 1)
+		for (i = 0; i <= 7; i = i + 1) begin : pk
 			arand[i] = $rtoi($random * 255.0);
-
+		end
+		
 		#10;
 
-		for (i = 0; i <= 7; i = i + 1)
-			$display("%i: %i - %i", i, d[7:0], q[7:0]);
-			
+		for (i = 0; i <= 7; i = i + 1) begin : show
+			$display("%i: %i - %i", i, arand[i], aord[i]);
+		end
 		$stop;
 	end
 	
@@ -62,17 +63,18 @@ module bubble_sort
 		output [DIM*WIDTH-1:0] pord  // упакованный в битовый вектор результат сортировки
 	);
 	
-	pass_swap #(DIM, WIDTH) pass0 (DIM-1, prand, pord); 
-
-	// genvar i;
-	// generate
-		// for (i = 0; i < DIM; i = i + 1) begin
-			// assign prand[(WIDTH + 1) * i - 1 : WIDTH * i] = arand[i];
-			// assign aord[i] = pord[(WIDTH + 1) * i - 1 : WIDTH * i];
-		// end
-	// endgenerate
-	// assign
-
+	wire [DIM*WIDTH-1:0] pa [DIM-2:0]; // частично упакованные упакованные массивы
+	
+	assign pa[0] = prand;
+	assign pord = pa[DIM-2];
+	
+	genvar i;
+	generate
+		for (i = 0; i < DIM-1; i = i + 1) begin : iter
+			pass_swap #(DIM, WIDTH) pass (DIM-i, pa[i], pa[i+1]); 
+		end
+	endgenerate
+	
 endmodule
 
 
@@ -89,35 +91,29 @@ module pass_swap
 	)
 	(
 		input integer level, // индекс последнего элемента в обрабатываемой части массива
-		input  [DIM*WIDTH-1:0] prand, // исходный упакованный неотсортированный массив
-		output [DIM*WIDTH-1:0] pord   // упакованный в битовый вектор результат сортировки
+		input  [DIM*WIDTH-1:0] pl, // менее уппорядоченный упакованный массив
+		output [DIM*WIDTH-1:0] pm  // более (More) уппорядоченный
 	);
 	
 	// распаковка и упаковка входного и выходного векторов данных для
 	// передачи отдельных элементов в модуль pair_swap
-	wire [WIDTH-1:0] arand [DIM-1:0]; // исходный неотсортированный массив
-	wire [WIDTH-1:0] aord  [DIM-1:0]; // результат сортировки
+	wire [WIDTH-1:0] al [DIM-1:0]; // исходный массив
+	wire [WIDTH-1:0] am [DIM-1:0]; // результат сортировки
 	genvar i;
 	generate
-		for (i = 0; i <= level; i = i + 1) begin
-			assign arand[i] = prand[(WIDTH + 1) * i - 1 : WIDTH * i];
-			assign pord[(WIDTH + 1) * i - 1 : WIDTH * i] = aord[i];
+		for (i = 0; i < DIM; i = i + 1) begin : unp
+			assign al[i] = pl[(WIDTH + 1) * i - 1 : WIDTH * i];
+			assign pm[(WIDTH + 1) * i - 1 : WIDTH * i] = am[i];
+		end
+		
+		for (i = 0; i < level - 1; i = i + 1) begin : srt
+			pair_swap #(WIDTH) pair (al[i], al[i+1], am[i], am[i+1]);
+		end
+		
+		for (i = level; i < DIM; i = i + 1) begin : cpy
+			assign am[i] = al[i];
 		end
 	endgenerate
-
-
-
-	// wire 
-	// genvar i,j;
-	// generate
-		// for (i = 0; i < level; i = i + 1) begin
-			
-			// for (j = 0; j < i; j = j + 1)
-			// pair_swap #(WIDTH) pair();
-			// assign prand[(WIDTH + 1) * i - 1 : WIDTH * i] = arand[i];
-			// assign aord[i] = pord[(WIDTH + 1) * i - 1 : WIDTH * i];
-		// end
-	// endgenerate
 endmodule
 
 
