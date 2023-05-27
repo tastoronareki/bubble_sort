@@ -5,7 +5,7 @@
 */
 module testbench;
 
-	parameter DIM = 4;   // длина массива
+	parameter DIM = 8;   // длина массива
 	parameter WIDTH = 8; // размерность элемента
 
 	reg  [WIDTH-1:0] rn  [DIM-1:0]; // Random
@@ -25,8 +25,10 @@ module testbench;
 	initial begin
 		#10;
 		for (idx = 0; idx < DIM; idx = idx + 1)
-			rn[idx] = $rtoi($random * $itor({DIM-1,{1'b1}}));
+			rn[idx] = $random % (1 << DIM);
 		#10;
+		for (idx = 0; idx < DIM; idx = idx + 1)
+			$display("%d: %d - %d", idx, rn[idx], ord[idx]);
 		$stop;
 	end
 

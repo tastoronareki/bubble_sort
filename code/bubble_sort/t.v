@@ -39,7 +39,7 @@ module testbench();
 		#10;
 
 		for (idx = 0; idx <= 7; idx = idx + 1) begin
-			$display("%idx: %idx - %idx", idx, arand[idx], aord[idx]);
+			$display("%i: %i - %i", idx, arand[idx], aord[idx]);
 		end
 		$stop;
 	end
