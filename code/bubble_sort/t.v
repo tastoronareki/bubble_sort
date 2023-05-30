@@ -4,13 +4,11 @@
 	синхросигнала и промежуточных состояний.
 
 */
-
 module testbench();
 
-	parameter DIM = 4;    // длина массива
+	parameter DIM = 10;    // длина массива
 	parameter WIDTH = 8;  // размерность элемента
 	
-
 	reg [WIDTH-1:0] arand [DIM-1:0]; // исходный неотсортированный массив
 	wire [WIDTH-1:0] aord [DIM-1:0]; // результат сортировки
 
@@ -20,27 +18,26 @@ module testbench();
 	genvar i;
 	generate
 		for (i = 0; i < DIM; i = i + 1) begin : pak
-			assign prand[(WIDTH + 1) * i - 1 : WIDTH * i] = arand[i];
-			assign aord[i] = pord[(WIDTH + 1) * i - 1 : WIDTH * i];
+			assign prand[WIDTH * (i + 1) - 1 : WIDTH * i] = arand[i];
+			assign aord[i] = pord[WIDTH * (i + 1) - 1 : WIDTH * i];
 		end
 	endgenerate
 
 	// unit under test
 	bubble_sort #(DIM, WIDTH) uut (prand, pord);
 
-	integer idx;
+	integer k;
 
 	initial begin
 
-		for (idx = 0; idx <= 7; idx = idx + 1) begin
-			arand[idx] = $rtoi($random * 255.0);
-		end
+		for (k = 0; k < DIM; k = k + 1)
+			arand[k] = $random % (1 << DIM);
 		
-		#10;
+		#30;
 
-		for (idx = 0; idx <= 7; idx = idx + 1) begin
-			$display("%i: %i - %i", idx, arand[idx], aord[idx]);
-		end
+		for (k = 0; k < DIM; k = k + 1)
+			$display("%d: %d - %d", k, arand[k], aord[k]);
+
 		$stop;
 	end
 	

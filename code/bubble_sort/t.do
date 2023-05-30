@@ -1,4 +1,4 @@
-cd C:/intelFPGA/Projects/bubble_sort/code/pass_swap
+cd C:/intelFPGA/Projects/bubble_sort/code/bubble_sort
 
 if [file exists work] {
     vdel -all

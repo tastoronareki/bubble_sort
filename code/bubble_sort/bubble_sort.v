@@ -6,7 +6,7 @@
 */
 module bubble_sort
 	#(
-		parameter DIM = 4,   // длина массива
+		parameter DIM = 10,   // длина массива
 		parameter WIDTH = 8  // размерность элемента
 	)
 	(
@@ -14,16 +14,15 @@ module bubble_sort
 		output [DIM*WIDTH-1:0] pord  // упакованный в битовый вектор результат сортировки
 	);
 	
-	wire [DIM*WIDTH-1:0] pa [DIM-2:0]; // частично упакованные упакованные массивы
+	wire [DIM*WIDTH-1:0] pa [DIM:1]; // частично уппорядоченные упакованные массивы
 	
-	assign pa[0] = prand;
-	assign pord = pa[DIM-2];
+	assign pa[1] = prand;
+	assign pord = pa[DIM];
 	
 	genvar i;
 	generate
-		for (i = 0; i < DIM - 2; i = i + 1) begin : iter
-//			parameter PATH = DIM-i;
-			pass_swap #(DIM, WIDTH, DIM-i) pass (pa[i], pa[i+1]); 
+		for (i = 1; i < DIM; i = i + 1) begin : p // pass
+			pass_swap #(DIM, i, WIDTH) pass (pa[i], pa[i+1]);
 		end
 	endgenerate
 endmodule
