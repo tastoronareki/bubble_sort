@@ -13,12 +13,24 @@ module bubble_sort_singl
 		input [DIM*WIDTH-1:0] prand, // исходный упакованный неотсортированный массив
 		output reg [DIM*WIDTH-1:0] pord  // упакованный в битовый вектор результат сортировки
 	);
-	
+
+
+
+
+	reg [DIM*WIDTH-1:0] prand_sync [1:0];
+
+	always @ (posedge clk) begin
+		prand_sync[1] <= prand_sync[0];
+		prand_sync[0] <= prand;
+	end
+
+
+
 	wire [DIM*WIDTH-1:0] pa [DIM:1]; // частично уппорядоченные упакованные массивы
 	
-	assign pa[1] = prand;
+	assign pa[1] = prand_sync[1];
 
-	always (posedge clk)
+	always @ (posedge clk)
 		pord <= pa[DIM];
 	
 	genvar i;
